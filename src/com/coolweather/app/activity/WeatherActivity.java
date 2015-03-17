@@ -6,18 +6,25 @@ import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener {
 
+	private Button switchCityButton;
+	
+	private Button refreshWeatherButton;
+	
 	private LinearLayout weatherInfoLayout;
 	
 	/**
@@ -58,6 +65,12 @@ public class WeatherActivity extends Activity {
 		temp1TextView = (TextView)findViewById(R.id.temp1);
 		temp2TextView = (TextView)findViewById(R.id.temp2);
 		currentDateTextView = (TextView)findViewById(R.id.current_date);
+		
+		switchCityButton = (Button)findViewById(R.id.switch_city);
+		refreshWeatherButton = (Button)findViewById(R.id.refresh_weather);
+		
+		switchCityButton.setOnClickListener(this);
+		refreshWeatherButton.setOnClickListener(this);
 		
 		String countyCode = getIntent().getStringExtra("county_code");
 		if (!TextUtils.isEmpty(countyCode)) {
@@ -140,5 +153,28 @@ public class WeatherActivity extends Activity {
 		currentDateTextView.setText(pref.getString("current_date", ""));
 		weatherInfoLayout.setVisibility(View.VISIBLE);
 		cityNameTextView.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		switch (v.getId()) {
+		case R.id.switch_city:
+			Intent intent = new Intent(this, ChooseAreaActivity.class);
+			intent.putExtra("from_weather_activity", true);
+			startActivity(intent);
+			finish();
+			break;
+		case R.id.refresh_weather:
+			publishTextView.setText("同步中...");
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			String weatherCode = prefs.getString("weather_code", "");
+			if (!TextUtils.isEmpty(weatherCode)) {
+				queryWeatherCode(weatherCode);
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }
